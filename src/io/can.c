@@ -44,14 +44,20 @@ void bind_to(const int socket_fd, const char *iface_name) {
     }
 }
 
-void can_send(const int socket_fd, const uint32_t can_id, const uint8_t data[]) {
-    const uint8_t len = sizeof(*data);
-
-    const struct can_frame frame = {
+void can_send(const int socket_fd, const uint32_t can_id, const uint8_t data[], int const len) {
+    struct can_frame frame = {
         .can_id = can_id,
-        .data = *data,
         .len = len
     };
 
-    write(socket_fd, &frame, sizeof(frame));
+    memcpy(frame.data, data, len);
+
+    const size_t frame_size = sizeof(frame);
+
+    const ssize_t bytes_written = write(socket_fd, &frame, frame_size);
+
+    if (bytes_written != frame_size) {
+        perror("write()");
+        exit(errno);
+    }
 }
