@@ -1,0 +1,82 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake mingw-w64
+
+      # ----------------------
+      # Build Linux
+      # ----------------------
+      - name: Configure (Linux)
+        run: |
+          cmake -B build-linux -S . -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build (Linux)
+        run: |
+          cmake --build build-linux --config Release
+
+      - name: Prepare Linux artifact
+        run: |
+          mkdir dist
+          cp build-linux/can_network dist/can-network-linux
+          chmod +x dist/can-network-linux
+
+      # ----------------------
+      # Build Windows (cross)
+      # ----------------------
+      - name: Configure (Windows - MinGW)
+        run: |
+          cmake -B build-win -S . \
+            -DCMAKE_SYSTEM_NAME=Windows \
+            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build (Windows)
+        run: |
+          cmake --build build-win --config Release
+
+      - name: Prepare Windows artifact
+        run: |
+          cp build-win/can_network.exe dist/can_network_windows.exe
+
+      # ----------------------
+      # Generate tag
+      # ----------------------
+      - name: Generate tag
+        id: tag
+        run: |
+          TAG="v$(date +'%Y.%m.%d.%H%M%S')"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          git tag $TAG
+          git push origin $TAG
+
+      # ----------------------
+      # Create Release
+      # ----------------------
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
+          files: |
+            dist/can-network-linux
+            dist/can_network_windows.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
