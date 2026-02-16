@@ -9,9 +9,13 @@
 #include "can.h"
 
 #define BROADCAST_ID 0x7DF
+#define SERVICE 0x01
+#define RPM_PID 0x0C
 
 uint16_t get_rpm(const int socket_fd) {
-    const uint8_t data[8] = {0x02, 0x01, 0x0C};
+    const uint8_t LEN = 0x02;
+
+    const uint8_t data[8] = {LEN, SERVICE, RPM_PID};
     const uint32_t can_id = BROADCAST_ID;
 
     CAN_SEND_ARRAY(socket_fd, can_id, data);
