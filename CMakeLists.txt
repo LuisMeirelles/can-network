@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.1)
+cmake_minimum_required(VERSION 3.20)
 project(can_network C)
 
 set(CMAKE_C_STANDARD 11)
