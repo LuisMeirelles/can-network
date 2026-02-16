@@ -44,7 +44,7 @@ void bind_to(const int socket_fd, const char *iface_name) {
     }
 }
 
-void can_send(const int socket_fd, const uint32_t can_id, const uint8_t data[], int const len) {
+void can_send(const int socket_fd, const uint32_t can_id, const uint8_t data[], const size_t len) {
     struct can_frame frame = {
         .can_id = can_id,
         .len = len

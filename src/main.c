@@ -8,10 +8,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <linux/can.h>
 #include <unistd.h>
 
 #include "can.h"
+#include "io/obd.h"
 
 int main(const int argc, const char **argv) {
     if (argc < 2) {
@@ -24,14 +24,10 @@ int main(const int argc, const char **argv) {
     bind_to(socket_fd, argv[1]);
 
     do {
-        const uint8_t data[8] = {0x02, 0x01, 0x0C};
-        const uint32_t can_id = 0x7DF;
+        const unsigned short rpm = get_rpm(socket_fd);
 
-        CAN_SEND_ARRAY(socket_fd, can_id, data);
-
-        struct can_frame frame;
-
-        can_recv(socket_fd, &frame);
+        printf("RPM: %hu\n", rpm);
+        fflush(stdout);
 
         sleep(1);
     } while (true);

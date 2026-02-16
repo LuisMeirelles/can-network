@@ -7,4 +7,6 @@ include_directories(include)
 
 add_executable(can_network
         src/main.c
-        src/io/can.c)
+        src/io/can.c
+        src/io/obd.c
+        src/io/obd.h)
