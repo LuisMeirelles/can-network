@@ -19,42 +19,24 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential cmake mingw-w64
+          sudo apt install -y build-essential cmake
 
       # ----------------------
-      # Build Linux
+      # Build
       # ----------------------
-      - name: Configure (Linux)
+      - name: Configure
         run: |
-          cmake -B build-linux -S . -DCMAKE_BUILD_TYPE=Release
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build (Linux)
+      - name: Build
         run: |
-          cmake --build build-linux --config Release
+          cmake --build build --config Release
 
-      - name: Prepare Linux artifact
+      - name: Prepare artifact
         run: |
           mkdir dist
-          cp build-linux/can_network dist/can-network-linux
-          chmod +x dist/can-network-linux
-
-      # ----------------------
-      # Build Windows (cross)
-      # ----------------------
-      - name: Configure (Windows - MinGW)
-        run: |
-          cmake -B build-win -S . \
-            -DCMAKE_SYSTEM_NAME=Windows \
-            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
-            -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build (Windows)
-        run: |
-          cmake --build build-win --config Release
-
-      - name: Prepare Windows artifact
-        run: |
-          cp build-win/can_network.exe dist/can_network_windows.exe
+          cp build/can_network dist/can-network
+          chmod +x dist/can-network
 
       # ----------------------
       # Generate tag
@@ -75,8 +57,6 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: Release ${{ steps.tag.outputs.tag }}
-          files: |
-            dist/can-network-linux
-            dist/can_network_windows.exe
+          files: dist/can-network
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
