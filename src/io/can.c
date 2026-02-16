@@ -61,3 +61,12 @@ void can_send(const int socket_fd, const uint32_t can_id, const uint8_t data[], 
         exit(errno);
     }
 }
+
+void can_recv(const int socket_fd, struct can_frame *frame) {
+    const ssize_t bytes_read = read(socket_fd, frame, sizeof(*frame));
+
+    if (bytes_read == -1) {
+        perror("read()");
+        exit(errno);
+    }
+}
