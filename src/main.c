@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 #include "can.h"
-#include "io/obd.h"
+#include "obd.h"
 
 int main(const int argc, const char **argv) {
     if (argc < 2) {
